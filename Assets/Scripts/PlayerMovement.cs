@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    private Player player;
     private float gravityScale = 9.81f;
     private PlayerControls controls;
     private CharacterController characterController;
@@ -20,16 +21,27 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private LayerMask aimLayerMask;
     private Vector3 lookingDirection;
 
-    private void Awake()
+
+    private void Start()
     {
+        player = GetComponent<Player>();
+        characterController = GetComponent<CharacterController>();
+        animator = GetComponentInChildren<Animator>();
+        speed = walkSpeed;
+
         AssignInputEvents();
+    }
+
+    private void Update()
+    {
+        ApplyMovement();
+        AimTowardsMouse();
+        AnimatorControllers();
     }
 
     private void AssignInputEvents()
     {
-        controls = new PlayerControls();
-
-        controls.Character.Fire.performed += context => Shoot();
+        controls = player.controls;
 
         controls.Character.Movement.performed += context => moveInput = context.ReadValue<Vector2>();
         controls.Character.Movement.canceled += context => moveInput = Vector2.zero;
@@ -48,25 +60,6 @@ public class PlayerMovement : MonoBehaviour
             speed = walkSpeed;
             isRunning = false;
         };
-    }
-
-    private void Start()
-    {
-        characterController = GetComponent<CharacterController>();
-        animator = GetComponentInChildren<Animator>();
-        speed = walkSpeed;
-    }
-
-    private void Update()
-    {
-        ApplyMovement();
-        AimTowardsMouse();
-        AnimatorControllers();
-    }
-
-    private void Shoot()
-    {
-        animator.SetTrigger("Fire");
     }
 
     private void AnimatorControllers()
@@ -91,7 +84,7 @@ public class PlayerMovement : MonoBehaviour
 
             transform.forward = lookingDirection;
 
-            aim.position = new Vector3(hitInfo.point.x, transform.position.y, hitInfo.point.z);
+            aim.position = new Vector3(hitInfo.point.x, transform.position.y + 1, hitInfo.point.z);
         }
     }
 
@@ -111,15 +104,5 @@ public class PlayerMovement : MonoBehaviour
             movementDirection.y = verticalVelocity;
         }
         else verticalVelocity = -0.5f;
-    }
-
-    private void OnEnable()
-    {
-        controls.Enable();
-    }
-
-    private void OnDisable()
-    {
-        controls.Disable();
     }
 }
