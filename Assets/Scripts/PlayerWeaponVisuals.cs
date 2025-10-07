@@ -45,7 +45,6 @@ public class PlayerWeaponVisuals : MonoBehaviour
 
         UpdateRigWeight();
         UpdateLeftHandIKWeight();
-
     }
 
     private void UpdateLeftHandIKWeight()
